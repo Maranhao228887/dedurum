@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Filmes</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">
+      🎬 <span>CineCatalog</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="form-section">
+      <h2>Adicionar Filme</h2>
+      <form id="filmeForm">
+        <div class="input-group">
+          <label for="nome">Nome do Filme</label>
+          <input type="text" id="nome" placeholder="Ex: Inception, Batman..." required>
+        </div>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label for="notaPessoal">Sua Nota (1 a 5)</label>
+            <select id="notaPessoal" required>
+              <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+              <option value="4">⭐⭐⭐⭐ (4/5)</option>
+              <option value="3">⭐⭐⭐ (3/5)</option>
+              <option value="2">⭐⭐ (2/5)</option>
+              <option value="1">⭐ (1/5)</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="status">Status</label>
+            <select id="status" required>
+              <option value="Já Assistido">Já Assistido</option>
+              <option value="Quero Assistir">Quero Assistir</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" id="btnSalvar">Adicionar ao Catálogo</button>
+      </form>
+    </section>
+
+    <section class="catalog-section">
+      <h2>Meu Catálogo</h2>
+      <div id="catalogGrid" class="catalog-grid"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

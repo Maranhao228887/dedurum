@@ -1,0 +1,22 @@
+# Dependências instaladas pelo npm (muito pesadas para versionar)
+node_modules/
+
+# Variáveis de ambiente e chaves secretas (nunca envie para o GitHub!)
+.env
+.env.local
+.env.*.local
+
+# Logs do sistema e erros do npm
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos e pastas do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Configurações do VS Code ou editores
+.vscode/
+.idea/
+src/database/*.db
