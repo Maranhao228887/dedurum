@@ -8,12 +8,13 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+// Permite que a API leia requisições em formato JSON
 app.use(express.json());
 
-// Aponta para a pasta public dentro de src
+// Serve os arquivos estáticos do frontend (HTML, CSS e JS do cliente)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Rotas da API
+// Registra as rotas de filmes com o prefixo /api/filmes
 app.use('/api/filmes', filmeRoutes);
 
 export default app;
