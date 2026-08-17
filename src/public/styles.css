@@ -67,8 +67,8 @@ body {
 }
 
 .input-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 0.8rem;
 }
 
@@ -85,6 +85,7 @@ input, select {
   border-radius: 6px;
   font-size: 0.95rem;
   outline: none;
+  width: 100%; /* <-- Adicione esta linha */
 }
 
 input:focus, select:focus {
