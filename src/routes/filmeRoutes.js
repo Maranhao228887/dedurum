@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  pesquisarFilmesOmdb,
   listarFilmes,
   buscarFilmePorId,
   criarFilme,
@@ -9,7 +10,8 @@ import {
 
 const router = Router();
 
-// Rotas da API
+// /buscar DEVE vir antes de /:id
+router.get('/buscar', pesquisarFilmesOmdb);
 router.get('/', listarFilmes);
 router.get('/:id', buscarFilmePorId);
 router.post('/', criarFilme);

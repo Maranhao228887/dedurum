@@ -3,59 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo de Filmes</title>
+  <title>Gordoflix - Seu Catálogo de Filmes</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
+  <!-- CABEÇALHO PRINCIPAL DO SITE -->
   <header class="navbar">
-    <div class="logo">
-      🎬 <span>CineCatalog</span>
+    <div class="logo-container">
+      <!-- Espaço reservado para quando sua imagem de logo estiver pronta -->
+      <img src="https://via.placeholder.com/140x40/e50914/ffffff?text=GORDOFLIX" alt="Logo Gordoflix" class="logo-img">
     </div>
+    
+    <nav class="nav-links" aria-label="Navegação Principal">
+      <button id="tabSearchBtn" class="nav-btn active" onclick="trocarAba('search')">
+        🔍 Pesquisar
+      </button>
+      <button id="tabListBtn" class="nav-btn" onclick="trocarAba('list')">
+        📚 Minha Lista
+      </button>
+    </nav>
   </header>
 
+  <!-- CONTEÚDO PRINCIPAL -->
   <main class="container">
-    <section class="form-section">
-      <h2>Adicionar Filme</h2>
-      <form id="filmeForm">
-        <div class="input-group">
-          <label for="nome">Nome do Filme</label>
-          <input type="text" id="nome" placeholder="Ex: Inception, Batman..." required>
-        </div>
 
-        <div class="input-row">
-          <div class="input-group">
-            <label for="notaPessoal">Sua Nota (1 a 5)</label>
-            <select id="notaPessoal" required>
-              <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-              <option value="4">⭐⭐⭐⭐ (4/5)</option>
-              <option value="3">⭐⭐⭐ (3/5)</option>
-              <option value="2">⭐⭐ (2/5)</option>
-              <option value="1">⭐ (1/5)</option>
-            </select>
-          </div>
+    <!-- SEÇÃO 1: PESQUISA DE FILMES -->
+    <section id="searchSection" class="tab-content active" aria-labelledby="heading-search">
+      <header class="section-header">
+        <h1 id="heading-search" class="visually-hidden">Pesquisar Filmes</h1>
+      </header>
+      
+      <div class="search-box">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Digite o nome de um filme..." 
+          onkeydown="checarEnter(event)"
+          aria-label="Campo de busca por título do filme"
+        >
+        <button class="btn-primary" onclick="buscarFilme()">Buscar</button>
+      </div>
 
-          <div class="input-group">
-            <label for="status">Status</label>
-            <select id="status" required>
-              <option value="Já Assistido">Já Assistido</option>
-              <option value="Quero Assistir">Quero Assistir</option>
-            </select>
-          </div>
-        </div>
-
-        <button type="submit" id="btnSalvar">Adicionar ao Catálogo</button>
-      </form>
+      <!-- Contêiner dinâmico do resultado da pesquisa -->
+      <div id="searchResult" class="search-result-container"></div>
     </section>
 
-    <section class="catalog-section">
-      <h2>Meu Catálogo</h2>
+    <!-- SEÇÃO 2: MINHA LISTA DE FILMES -->
+    <section id="listSection" class="tab-content" aria-labelledby="heading-list">
+      <header class="section-header">
+        <h2 id="heading-list" class="section-title">Minha Coleção</h2>
+        
+        <!-- Barra de Filtros por Categoria -->
+        <nav class="filter-bar" aria-label="Filtros da Lista">
+          <button class="filter-btn active" onclick="filtrarLista('todos')">Todos</button>
+          <button class="filter-btn" onclick="filtrarLista('Quero Assistir')">Quero Assistir</button>
+          <button class="filter-btn" onclick="filtrarLista('Já Assistido')">Já Assistido</button>
+        </nav>
+      </header>
+
+      <!-- Grid dinâmico da lista cadastrada -->
       <div id="catalogGrid" class="catalog-grid"></div>
     </section>
+
   </main>
+
+  <!-- RODAPÉ INSTITUCIONAL -->
+  <footer class="footer">
+    <p>&copy; 2026 Gordoflix. Todos os direitos reservados.</p>
+  </footer>
 
   <script src="app.js"></script>
 </body>
