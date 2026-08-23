@@ -26,12 +26,12 @@ body {
   flex-direction: column;
 }
 
-<<<<<<< HEAD
 .input-row {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-=======
+}
+
 /* Esconde elementos visualmente sem perder acessibilidade */
 .visually-hidden {
   position: absolute;
@@ -42,7 +42,6 @@ body {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
->>>>>>> f0ddbd8ad5052f0527901989af5a6f6ecee4f5e6
 }
 
 /* ==========================================================================
@@ -60,6 +59,18 @@ body {
 .logo-img {
   height: 38px;
   object-fit: contain;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-text {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-text);
 }
 
 .nav-links {
