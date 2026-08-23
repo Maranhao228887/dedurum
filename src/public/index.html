@@ -10,61 +10,58 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+  <header class="navbar">
+    <div class="logo-container">
+      <img src="/images/foto.png" alt="Logo do Meu Catálogo" class="logo-img">
+      <span class="logo-text">Meu Catálogo</span>
+    </div>
 
-  <!-- CABEÇALHO PRINCIPAL DO SITE -->
-  <!-- Exemplo dentro do cabeçalho/navbar -->
-<header class="navbar">
-  <div class="logo-container">
-    <!-- Arquivos dentro de src/public/images ficam disponíveis em /images -->
-    <img src="/images/foto.png" alt="Logo" class="logo-img">
-    <span class="logo-text">Meu Catálogo</span>
-  </div>
-</header>
+    <nav class="nav-links" aria-label="Navegação principal">
+      <button id="tabSearchBtn" class="nav-btn active" type="button" onclick="trocarAba('search')" aria-controls="searchSection">
+        Buscar filmes
+      </button>
+      <button id="tabListBtn" class="nav-btn" type="button" onclick="trocarAba('list')" aria-controls="listSection">
+        Minha coleção
+      </button>
+    </nav>
+  </header>
 
-  <!-- CONTEÚDO PRINCIPAL -->
   <main class="container">
-
-    <!-- SEÇÃO 1: PESQUISA DE FILMES -->
     <section id="searchSection" class="tab-content active" aria-labelledby="heading-search">
       <header class="section-header">
-        <h1 id="heading-search" class="visually-hidden">Pesquisar Filmes</h1>
+        <h1 id="heading-search" class="section-title">Pesquisar filmes</h1>
       </header>
-      
+
       <div class="search-box">
-        <input 
-          type="text" 
-          id="searchInput" 
-          placeholder="Digite o nome de um filme..." 
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Digite o nome de um filme..."
           onkeydown="checarEnter(event)"
-          aria-label="Campo de busca por título do filme"
+          aria-label="Buscar filme por título"
+          autocomplete="off"
         >
-        <button class="btn-primary" onclick="buscarFilme()">Buscar</button>
+        <button class="btn-primary" type="button" onclick="buscarFilme()">Buscar</button>
       </div>
 
-      <!-- Contêiner dinâmico do resultado da pesquisa -->
-      <div id="searchResult" class="search-result-container"></div>
+      <div id="searchResult" class="search-result-container" aria-live="polite"></div>
     </section>
 
-    <!-- SEÇÃO 2: MINHA LISTA DE FILMES -->
     <section id="listSection" class="tab-content" aria-labelledby="heading-list">
       <header class="section-header">
         <h2 id="heading-list" class="section-title">Minha Coleção</h2>
-        
-        <!-- Barra de Filtros por Categoria -->
+
         <nav class="filter-bar" aria-label="Filtros da Lista">
-          <button class="filter-btn active" onclick="filtrarLista('todos')">Todos</button>
-          <button class="filter-btn" onclick="filtrarLista('Quero Assistir')">Quero Assistir</button>
-          <button class="filter-btn" onclick="filtrarLista('Já Assistido')">Já Assistido</button>
+          <button class="filter-btn active" type="button" onclick="filtrarLista('todos')">Todos</button>
+          <button class="filter-btn" type="button" onclick="filtrarLista('Quero Assistir')">Quero Assistir</button>
+          <button class="filter-btn" type="button" onclick="filtrarLista('Já Assistido')">Já Assistido</button>
         </nav>
       </header>
 
-      <!-- Grid dinâmico da lista cadastrada -->
-      <div id="catalogGrid" class="catalog-grid"></div>
+      <div id="catalogGrid" class="catalog-grid" aria-live="polite"></div>
     </section>
-
   </main>
 
-  <!-- RODAPÉ INSTITUCIONAL -->
   <footer class="footer">
     <p>&copy; 2026 Gordoflix. Todos os direitos reservados.</p>
   </footer>

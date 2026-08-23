@@ -344,3 +344,17 @@ body {
   border-top: 1px solid var(--color-border);
   margin-top: auto;
 }
+.btn-voltar {
+  background-color: transparent;
+  color: #f0f6fc;
+  border: 1px solid #2e3545;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-voltar:hover {
+  background-color: #161a22;
+}
