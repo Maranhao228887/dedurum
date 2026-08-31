@@ -1,4 +1,5 @@
 const API_URL = '/api/filmes';
+const API_KEY = 'sua_chave_copiada_aqui';
 let listaFilmesCache = [];
 let filtroAtual = 'todos';
 let timeoutId; // Para debounce da busca em tempo real
