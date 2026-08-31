@@ -1,6 +1,87 @@
 const API_URL = '/api/filmes';
 let listaFilmesCache = [];
 let filtroAtual = 'todos';
+let timeoutId; // Para debounce da busca em tempo real
+
+// ===== BUSCA EM TEMPO REAL COM DROPDOWN =====
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+
+    // Limpa o temporizador anterior
+    clearTimeout(timeoutId);
+
+    if (query.length < 2) {
+      searchResults.style.display = 'none';
+      searchResults.innerHTML = '';
+      return;
+    }
+
+    // Aguarda 300ms após o usuário parar de digitar
+    timeoutId = setTimeout(() => {
+      fetchMoviesRealtime(query);
+    }, 300);
+  });
+
+  // Esconde resultados ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+      searchResults.style.display = 'none';
+    }
+  });
+}
+
+async function fetchMoviesRealtime(query) {
+  try {
+    const response = await fetch(`${API_URL}/buscar?nome=${encodeURIComponent(query)}`);
+    const data = await response.json();
+
+    displayRealtimeResults(data);
+  } catch (error) {
+    console.error('Erro ao buscar filmes em tempo real:', error);
+  }
+}
+
+function displayRealtimeResults(movie) {
+  searchResults.innerHTML = '';
+
+  if (!movie || !movie.Title) {
+    searchResults.style.display = 'none';
+    return;
+  }
+
+  const posterPath = movie.Poster !== 'N/A' 
+    ? movie.Poster 
+    : 'https://via.placeholder.com/45x68?text=Sem+Capa';
+
+  const year = movie.Year || 'N/A';
+
+  const item = document.createElement('div');
+  item.classList.add('result-item');
+  item.innerHTML = `
+    <img src="${posterPath}" alt="${movie.Title}">
+    <div class="result-info">
+      <h4>${movie.Title}</h4>
+      <span>${year}</span>
+    </div>
+  `;
+
+  // Ao clicar no filme do dropdown
+  item.addEventListener('click', () => {
+    searchInput.value = movie.Title;
+    searchResults.style.display = 'none';
+    buscarFilme(); // Carrega o filme completo
+  });
+
+  searchResults.appendChild(item);
+  searchResults.style.display = 'block';
+}
+
+// ===== FIM BUSCA EM TEMPO REAL =====
+
 
 // 1. Troca de Abas
 function trocarAba(aba) {
