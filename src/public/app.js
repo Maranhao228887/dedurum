@@ -249,42 +249,43 @@ function createMovieCard(movie) {
       <h4 style="margin: 0; color: #fff;">${movie.title}</h4>
       <span style="font-size: 12px; color: #888;">${movie.release_date ? movie.release_date.split('-')[0] : ''}</span>
       <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;">
-        <button class="btn">+ Quero Assistir</button>
-        <button class="btn">✓ Já Assistido</button>
+        <button class="btn btn-want">+ Quero Assistir</button>
+        <button class="btn btn-watched">✓ Já Assistido</button>
       </div>
     </div>
   `;
 
+  const mediaContainer = card.querySelector('.media-container');
   const iframe = card.querySelector('iframe');
   let trailerKey = null;
 
-  // Evento quando o cursor ENTRA no card
+  // 1. Clique na imagem/container para abrir o Modal de Detalhes
+  mediaContainer.addEventListener('click', (e) => {
+    openMovieDetails(movie.id);
+  });
+
+  // 2. Eventos de HOVER para o Trailer
   card.addEventListener('mouseenter', async () => {
-    // Busca a chave do trailer apenas na primeira vez que o mouse passa por cima
     if (!trailerKey) {
       trailerKey = await getMovieTrailerKey(movie.id);
     }
-
     if (trailerKey) {
-      // Insere o link de embed do YouTube com autoplay e áudio desativado (mute=1 facilita o autoplay)
       iframe.src = `https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerKey}`;
       card.classList.add('playing');
     }
   });
 
-  // Evento quando o cursor SAI do card
   card.addEventListener('mouseleave', () => {
-    // Parar o vídeo limpando o src e voltar para a capa
     iframe.src = '';
     card.classList.remove('playing');
   });
 
-  // Adicionar evento de clique na imagem para abrir detalhes
-  const imgElement = card.querySelector('.media-container img');
-  imgElement.style.cursor = 'pointer';
-  imgElement.addEventListener('click', (e) => {
-    e.stopPropagation();
-    openMovieDetails(movie.id);
+  // 3. Impede que o clique nos botões abra o modal sem querer
+  const buttons = card.querySelectorAll('button');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Evita acionar o clique da imagem/card
+    });
   });
 
   return card;
