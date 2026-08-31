@@ -7,10 +7,19 @@ let timeoutId; // Para debounce da busca em tempo real
 // ===== BUSCA EM TEMPO REAL COM DROPDOWN =====
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
+const savedMoviesSection = document.getElementById('savedMoviesSection');
 
 if (searchInput) {
   searchInput.addEventListener('input', (e) => {
     const query = e.target.value.trim();
+
+    // Se o usuário estiver digitando (1 ou mais caracteres), esconde os filmes salvos
+    if (query.length > 0) {
+      savedMoviesSection.classList.add('hidden');
+    } else {
+      // Se apagar a pesquisa, mostra os filmes salvos novamente
+      savedMoviesSection.classList.remove('hidden');
+    }
 
     // Limpa o temporizador anterior
     clearTimeout(timeoutId);
