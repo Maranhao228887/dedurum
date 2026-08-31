@@ -419,3 +419,59 @@ body {
   font-size: 12px;
   color: #aaa;
 }
+/* Container que junta a barra e os resultados */
+.search-box {
+  position: relative;
+  width: 100%;
+  max-width: 600px; /* Ajuste para o tamanho da sua barra */
+  margin: 0 auto;
+}
+
+/* A lista que aparece embaixo da barra */
+.results-dropdown {
+  position: absolute;
+  top: 100%; /* Faz colar exatamente abaixo da barra */
+  left: 0;
+  right: 0;
+  background-color: #1a1d24; /* Cor de fundo do painel */
+  border: 1px solid #333;
+  border-radius: 0 0 8px 8px;
+  max-height: 350px; /* Limita a altura para criar rolagem */
+  overflow-y: auto;
+  z-index: 999; /* Garante que fique acima de outros elementos */
+  display: none; /* Inicia oculto */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Estilo de cada linha de filme */
+.result-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 12px;
+  border-bottom: 1px solid #2a2d34;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.result-item:hover {
+  background-color: #2a2d34;
+}
+
+.result-item img {
+  width: 45px;
+  height: 65px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.result-info h4 {
+  margin: 0;
+  color: #fff;
+  font-size: 14px;
+}
+
+.result-info span {
+  font-size: 12px;
+  color: #888;
+}

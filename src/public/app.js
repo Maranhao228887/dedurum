@@ -81,6 +81,51 @@ function displayRealtimeResults(movie) {
   searchResults.style.display = 'block';
 }
 
+// Função para exibir múltiplos resultados (para APIs que retornam array)
+function displayResults(movies) {
+  searchResults.innerHTML = '';
+
+  if (!movies || movies.length === 0) {
+    searchResults.style.display = 'none';
+    return;
+  }
+
+  movies.slice(0, 5).forEach(movie => {
+    // Suporta tanto TMDB (poster_path) quanto OMDb (Poster)
+    const posterPath = movie.poster_path 
+      ? `https://image.tmdb.org/t/p/w92${movie.poster_path}`
+      : (movie.Poster && movie.Poster !== 'N/A' 
+        ? movie.Poster 
+        : 'https://via.placeholder.com/45x65?text=Sem+Capa');
+
+    const title = movie.title || movie.Title;
+    const year = movie.release_date 
+      ? movie.release_date.split('-')[0]
+      : (movie.Year || 'N/A');
+
+    const item = document.createElement('div');
+    item.classList.add('result-item');
+    item.innerHTML = `
+      <img src="${posterPath}" alt="${title}">
+      <div class="result-info">
+        <h4>${title}</h4>
+        <span>${year}</span>
+      </div>
+    `;
+
+    // Ao clicar no filme do dropdown
+    item.addEventListener('click', () => {
+      searchInput.value = title;
+      searchResults.style.display = 'none';
+      buscarFilme();
+    });
+
+    searchResults.appendChild(item);
+  });
+
+  searchResults.style.display = 'block';
+}
+
 // ===== FIM BUSCA EM TEMPO REAL =====
 
 
