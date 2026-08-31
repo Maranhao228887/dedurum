@@ -155,6 +155,82 @@ async function getMovieTrailerKey(movieId) {
   }
 }
 
+// ===== MODAL DE DETALHES DO FILME =====
+// Referências dos elementos do Modal
+const movieModal = document.getElementById('movieModal');
+const closeModal = document.getElementById('closeModal');
+
+// Fechar modal no botão X ou ao clicar no fundo escuro
+if (closeModal && movieModal) {
+  closeModal.addEventListener('click', () => movieModal.classList.remove('active'));
+  movieModal.addEventListener('click', (e) => {
+    if (e.target === movieModal) movieModal.classList.remove('active');
+  });
+}
+
+// Função para buscar TODOS os detalhes do filme e abrir o modal
+async function openMovieDetails(movieId) {
+  const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=pt-BR&append_to_response=credits`;
+
+  try {
+    const response = await fetch(url);
+    const movie = await response.json();
+
+    // 1. Capa
+    document.getElementById('modalImg').src = movie.poster_path 
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
+      : 'https://via.placeholder.com/220x330?text=Sem+Capa';
+
+    // 2. Título
+    document.getElementById('modalTitle').textContent = movie.title;
+
+    // 3. Metadados (Data, Duração, Nota)
+    const releaseDate = movie.release_date 
+      ? new Date(movie.release_date).toLocaleDateString('pt-BR') 
+      : 'N/A';
+    document.getElementById('modalDate').textContent = `📅 ${releaseDate}`;
+    document.getElementById('modalRuntime').textContent = `⏱️ ${movie.runtime || '--'} min`;
+    document.getElementById('modalRating').textContent = `⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}/10`;
+
+    // 4. Gêneros
+    const genresContainer = document.getElementById('modalGenres');
+    genresContainer.innerHTML = '';
+    if (movie.genres && movie.genres.length > 0) {
+      movie.genres.forEach(g => {
+        const badge = document.createElement('span');
+        badge.classList.add('genre-badge');
+        badge.textContent = g.name;
+        genresContainer.appendChild(badge);
+      });
+    }
+
+    // 5. Sinopse
+    document.getElementById('modalOverview').textContent = movie.overview || 'Sinopse não disponível para este filme.';
+
+    // 6. Diretor e Elenco
+    const director = movie.credits?.crew?.find(c => c.job === 'Director');
+    document.getElementById('modalDirector').textContent = director ? director.name : 'Não informado';
+
+    const topCast = movie.credits?.cast?.slice(0, 4).map(c => c.name).join(', ');
+    document.getElementById('modalCast').textContent = topCast || 'Não informado';
+
+    // 7. Orçamento e Receita
+    document.getElementById('modalBudget').textContent = movie.budget 
+      ? `$ ${movie.budget.toLocaleString('en-US')}` 
+      : 'Não informado';
+    document.getElementById('modalRevenue').textContent = movie.revenue 
+      ? `$ ${movie.revenue.toLocaleString('en-US')}` 
+      : 'Não informado';
+
+    // Exibe o modal adicionando a classe "active"
+    movieModal.classList.add('active');
+
+  } catch (error) {
+    console.error('Erro ao buscar detalhes do filme:', error);
+  }
+}
+// ===== FIM MODAL DE DETALHES DO FILME =====
+
 // Função para criar o Card com evento de Hover para o Trailer
 function createMovieCard(movie) {
   const card = document.createElement('div');
@@ -201,6 +277,14 @@ function createMovieCard(movie) {
     // Parar o vídeo limpando o src e voltar para a capa
     iframe.src = '';
     card.classList.remove('playing');
+  });
+
+  // Adicionar evento de clique na imagem para abrir detalhes
+  const imgElement = card.querySelector('.media-container img');
+  imgElement.style.cursor = 'pointer';
+  imgElement.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openMovieDetails(movie.id);
   });
 
   return card;

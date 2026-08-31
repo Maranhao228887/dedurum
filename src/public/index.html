@@ -74,3 +74,41 @@
   <script src="app.js"></script>
 </body>
 </html>
+<!-- Modal de Detalhes do Filme -->
+<div id="movieModal" class="modal-overlay">
+  <div class="modal-content">
+    <button id="closeModal" class="close-btn">&times;</button>
+    
+    <div class="modal-body">
+      <!-- Lado Esquerdo: Capa do Filme -->
+      <div class="modal-poster">
+        <img id="modalImg" src="" alt="Capa do filme">
+      </div>
+
+      <!-- Lado Direito: Informações Detalhadas -->
+      <div class="modal-details">
+        <h2 id="modalTitle">Título do Filme</h2>
+        
+        <div class="modal-meta">
+          <span id="modalDate">📅 --/--/----</span>
+          <span id="modalRuntime">⏱️ -- min</span>
+          <span id="modalRating">⭐ --/10</span>
+        </div>
+
+        <div id="modalGenres" class="genres-container">
+          <!-- Gêneros entram aqui via JS -->
+        </div>
+
+        <h3>Sinopse</h3>
+        <p id="modalOverview">Carregando sinopse...</p>
+
+        <div class="extra-info">
+          <p><strong>Direção:</strong> <span id="modalDirector">N/A</span></p>
+          <p><strong>Elenco principal:</strong> <span id="modalCast">N/A</span></p>
+          <p><strong>Orçamento:</strong> <span id="modalBudget">N/A</span></p>
+          <p><strong>Receita:</strong> <span id="modalRevenue">N/A</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
