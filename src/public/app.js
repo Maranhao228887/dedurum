@@ -137,8 +137,77 @@ function displayResults(movies) {
 
 // ===== FIM BUSCA EM TEMPO REAL =====
 
+// ===== TRAILERS E CARDS COM TMDB =====
+// Função para buscar a chave do trailer no TMDb
+async function getMovieTrailerKey(movieId) {
+  const url = `https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${API_KEY}&language=pt-BR`;
+  
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    // Procura por um vídeo do tipo "Trailer" no YouTube
+    const trailer = data.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') || data.results[0];
+    return trailer ? trailer.key : null;
+  } catch (error) {
+    console.error('Erro ao buscar trailer:', error);
+    return null;
+  }
+}
 
-// 1. Troca de Abas
+// Função para criar o Card com evento de Hover para o Trailer
+function createMovieCard(movie) {
+  const card = document.createElement('div');
+  card.classList.add('movie-card');
+
+  const posterPath = movie.poster_path 
+    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    : 'https://via.placeholder.com/200x280?text=Sem+Capa';
+
+  card.innerHTML = `
+    <div class="media-container">
+      <img src="${posterPath}" alt="${movie.title}">
+      <iframe src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+    <div class="movie-info" style="padding: 10px;">
+      <h4 style="margin: 0; color: #fff;">${movie.title}</h4>
+      <span style="font-size: 12px; color: #888;">${movie.release_date ? movie.release_date.split('-')[0] : ''}</span>
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;">
+        <button class="btn">+ Quero Assistir</button>
+        <button class="btn">✓ Já Assistido</button>
+      </div>
+    </div>
+  `;
+
+  const iframe = card.querySelector('iframe');
+  let trailerKey = null;
+
+  // Evento quando o cursor ENTRA no card
+  card.addEventListener('mouseenter', async () => {
+    // Busca a chave do trailer apenas na primeira vez que o mouse passa por cima
+    if (!trailerKey) {
+      trailerKey = await getMovieTrailerKey(movie.id);
+    }
+
+    if (trailerKey) {
+      // Insere o link de embed do YouTube com autoplay e áudio desativado (mute=1 facilita o autoplay)
+      iframe.src = `https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerKey}`;
+      card.classList.add('playing');
+    }
+  });
+
+  // Evento quando o cursor SAI do card
+  card.addEventListener('mouseleave', () => {
+    // Parar o vídeo limpando o src e voltar para a capa
+    iframe.src = '';
+    card.classList.remove('playing');
+  });
+
+  return card;
+}
+// ===== FIM TRAILERS E CARDS COM TMDB =====
+
+
 function trocarAba(aba) {
   document.getElementById('searchSection').classList.toggle('active', aba === 'search');
   document.getElementById('listSection').classList.toggle('active', aba === 'list');
