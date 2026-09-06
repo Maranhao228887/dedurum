@@ -1,114 +1,135 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gordoflix - Seu Catálogo de Filmes</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-</head>
-<body>
-  <header class="navbar">
-    <div class="logo-container">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
-      </svg>
-      <span>Meu Catálogo</span>
-    </div>
-
-    <nav class="nav-links" aria-label="Navegação principal">
-      <button id="tabSearchBtn" class="nav-btn active" type="button" onclick="trocarAba('search')" aria-controls="searchSection">
-        Buscar filmes
-      </button>
-      <button id="tabListBtn" class="nav-btn" type="button" onclick="trocarAba('list')" aria-controls="listSection">
-        Minha coleção
-      </button>
-    </nav>
-  </header>
-
-  <main class="container">
-    <section id="searchSection" class="tab-content active" aria-labelledby="heading-search">
-      <header class="section-header">
-        <h1 id="heading-search" class="section-title">Pesquisar filmes</h1>
-      </header>
-
-      <div class="search-box">
-        <input
-          id="searchInput"
-          type="search"
-          placeholder="Digite o nome de um filme..."
-          onkeydown="checarEnter(event)"
-          aria-label="Buscar filme por título"
-          autocomplete="off"
-        >
-        <button class="btn-primary" type="button" onclick="buscarFilme()">Buscar</button>
-        <div id="searchResults" class="results-dropdown"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gordoflix - Seu Catálogo de Filmes</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="logo-container">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z" />
+        </svg>
+        <span>Meu Catálogo</span>
       </div>
 
-      <div id="searchResult" class="search-result-container" aria-live="polite"></div>
-      
-      <div id="savedMoviesSection" class="saved-movies-grid" aria-labelledby="heading-search"></div>
-    </section>
+      <nav class="nav-links" aria-label="Navegação principal">
+        <button id="tabSearchBtn" class="nav-btn active" type="button" onclick="trocarAba('search')" aria-controls="searchSection">
+          Buscar filmes
+        </button>
+        <button id="tabListBtn" class="nav-btn" type="button" onclick="trocarAba('list')" aria-controls="listSection">
+          Minha coleção
+        </button>
+      </nav>
+    </header>
 
-    <section id="listSection" class="tab-content" aria-labelledby="heading-list">
-      <header class="section-header">
-        <h2 id="heading-list" class="section-title">Minha Coleção</h2>
+    <main class="container">
+      <section class="hero-panel" aria-label="Resumo do catálogo">
+        <div class="hero-copy">
+          <p class="eyebrow">Sua biblioteca</p>
+          <h1>Descubra e organize os filmes que quer ver.</h1>
+        </div>
+        <div class="hero-stats" aria-label="Estatísticas do catálogo">
+          <div>
+            <strong>Curadoria</strong>
+            <span>Personalizada</span>
+          </div>
+          <div>
+            <strong>Lista</strong>
+            <span>Fácil de manter</span>
+          </div>
+        </div>
+      </section>
 
-        <nav class="filter-bar" aria-label="Filtros da Lista">
-          <button class="filter-btn active" type="button" onclick="filtrarLista('todos')">Todos</button>
-          <button class="filter-btn" type="button" onclick="filtrarLista('Quero Assistir')">Quero Assistir</button>
-          <button class="filter-btn" type="button" onclick="filtrarLista('Já Assistido')">Já Assistido</button>
-        </nav>
-      </header>
+      <section id="searchSection" class="tab-content active" aria-labelledby="heading-search">
+        <header class="section-header">
+          <h2 id="heading-search" class="section-title">Pesquisar filmes</h2>
+        </header>
 
-      <div id="catalogGrid" class="catalog-grid" aria-live="polite"></div>
-    </section>
-  </main>
+        <div class="search-box">
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Digite o nome de um filme..."
+            onkeydown="checarEnter(event)"
+            aria-label="Buscar filme por título"
+            autocomplete="off"
+          />
+          <button id="clearSearchBtn" class="clear-search-btn" type="button" aria-label="Limpar busca">✕</button>
+          <button class="btn-primary" type="button" onclick="buscarFilme()">Buscar</button>
+          <div id="searchResults" class="results-dropdown"></div>
+        </div>
 
-  <footer class="footer">
-    <p>&copy; 2026 Gordoflix. Todos os direitos reservados.</p>
-  </footer>
+        <div id="searchResult" class="search-result-container" aria-live="polite"></div>
+        <div id="savedMoviesSection" class="saved-movies-grid" aria-labelledby="heading-search"></div>
+      </section>
 
-  <script src="app.js"></script>
-</body>
+      <section id="listSection" class="tab-content" aria-labelledby="heading-list">
+        <header class="section-header">
+          <h2 id="heading-list" class="section-title">Minha Coleção</h2>
+
+          <nav class="filter-bar" aria-label="Filtros da Lista">
+            <button class="filter-btn active" type="button" onclick="filtrarLista('todos')">Todos</button>
+            <button class="filter-btn" type="button" onclick="filtrarLista('Quero Assistir')">Quero Assistir</button>
+            <button class="filter-btn" type="button" onclick="filtrarLista('Já Assistido')">Já Assistido</button>
+            <label class="sort-control" for="sortSelect">
+              <span>Ordenar</span>
+              <select id="sortSelect" aria-label="Ordenar filmes" onchange="ordenarLista(this.value)">
+                <option value="recentes">Mais recentes</option>
+                <option value="antigos">Mais antigos</option>
+                <option value="titulo">Título A-Z</option>
+              </select>
+            </label>
+          </nav>
+        </header>
+
+        <div id="catalogGrid" class="catalog-grid" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>&copy; 2026 Gordoflix. Todos os direitos reservados.</p>
+    </footer>
+
+    <div id="movieModal" class="modal-overlay" aria-hidden="true">
+      <div class="modal-content">
+        <button id="closeModal" class="close-btn" aria-label="Fechar modal">&times;</button>
+
+        <div class="modal-body">
+          <div class="modal-poster">
+            <img id="modalImg" src="" alt="Capa do filme" />
+          </div>
+
+          <div class="modal-details">
+            <h2 id="modalTitle">Título do Filme</h2>
+
+            <div class="modal-meta">
+              <span id="modalDate">📅 --/--/----</span>
+              <span id="modalRuntime">⏱️ -- min</span>
+              <span id="modalRating">⭐ --/10</span>
+            </div>
+
+            <div id="modalGenres" class="genres-container"></div>
+
+            <h3>Sinopse</h3>
+            <p id="modalOverview">Carregando sinopse...</p>
+
+            <div class="extra-info">
+              <p><strong>Direção:</strong> <span id="modalDirector">N/A</span></p>
+              <p><strong>Elenco principal:</strong> <span id="modalCast">N/A</span></p>
+              <p><strong>Orçamento:</strong> <span id="modalBudget">N/A</span></p>
+              <p><strong>Receita:</strong> <span id="modalRevenue">N/A</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js" defer></script>
+  </body>
 </html>
-<!-- Modal de Detalhes do Filme -->
-<div id="movieModal" class="modal-overlay">
-  <div class="modal-content">
-    <button id="closeModal" class="close-btn">&times;</button>
-    
-    <div class="modal-body">
-      <!-- Lado Esquerdo: Capa do Filme -->
-      <div class="modal-poster">
-        <img id="modalImg" src="" alt="Capa do filme">
-      </div>
-
-      <!-- Lado Direito: Informações Detalhadas -->
-      <div class="modal-details">
-        <h2 id="modalTitle">Título do Filme</h2>
-        
-        <div class="modal-meta">
-          <span id="modalDate">📅 --/--/----</span>
-          <span id="modalRuntime">⏱️ -- min</span>
-          <span id="modalRating">⭐ --/10</span>
-        </div>
-
-        <div id="modalGenres" class="genres-container">
-          <!-- Gêneros entram aqui via JS -->
-        </div>
-
-        <h3>Sinopse</h3>
-        <p id="modalOverview">Carregando sinopse...</p>
-
-        <div class="extra-info">
-          <p><strong>Direção:</strong> <span id="modalDirector">N/A</span></p>
-          <p><strong>Elenco principal:</strong> <span id="modalCast">N/A</span></p>
-          <p><strong>Orçamento:</strong> <span id="modalBudget">N/A</span></p>
-          <p><strong>Receita:</strong> <span id="modalRevenue">N/A</span></p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>

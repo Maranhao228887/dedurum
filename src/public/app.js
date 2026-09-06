@@ -2,26 +2,61 @@ const API_URL = '/api/filmes';
 const API_KEY = 'sua_chave_copiada_aqui';
 let listaFilmesCache = [];
 let filtroAtual = 'todos';
+let ordenacaoAtual = 'recentes';
 let timeoutId; // Para debounce da busca em tempo real
 
 // ===== BUSCA EM TEMPO REAL COM DROPDOWN =====
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 const savedMoviesSection = document.getElementById('savedMoviesSection');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+function updateSearchClearButton() {
+  if (!clearSearchBtn || !searchInput) return;
+  const hasValue = searchInput.value.trim().length > 0;
+  clearSearchBtn.classList.toggle('visible', hasValue);
+}
+
+function clearSearch() {
+  if (!searchInput) return;
+  searchInput.value = '';
+  searchResults.style.display = 'none';
+  searchResults.innerHTML = '';
+  if (savedMoviesSection) savedMoviesSection.classList.remove('hidden');
+  updateSearchClearButton();
+  searchInput.focus();
+}
+
+function showToast(message) {
+  const existingToast = document.querySelector('.toast');
+  if (existingToast) existingToast.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('show');
+  }, 10);
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 250);
+  }, 2200);
+}
 
 if (searchInput) {
   searchInput.addEventListener('input', (e) => {
     const query = e.target.value.trim();
+    updateSearchClearButton();
 
-    // Se o usuário estiver digitando (1 ou mais caracteres), esconde os filmes salvos
     if (query.length > 0) {
-      savedMoviesSection.classList.add('hidden');
+      if (savedMoviesSection) savedMoviesSection.classList.add('hidden');
     } else {
-      // Se apagar a pesquisa, mostra os filmes salvos novamente
-      savedMoviesSection.classList.remove('hidden');
+      if (savedMoviesSection) savedMoviesSection.classList.remove('hidden');
     }
 
-    // Limpa o temporizador anterior
     clearTimeout(timeoutId);
 
     if (query.length < 2) {
@@ -30,19 +65,29 @@ if (searchInput) {
       return;
     }
 
-    // Aguarda 300ms após o usuário parar de digitar
     timeoutId = setTimeout(() => {
       fetchMoviesRealtime(query);
     }, 300);
   });
 
-  // Esconde resultados ao clicar fora
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', clearSearch);
+  }
+
   document.addEventListener('click', (e) => {
     if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
       searchResults.style.display = 'none';
     }
   });
+
+  updateSearchClearButton();
 }
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && movieModal) {
+    movieModal.classList.remove('active');
+  }
+});
 
 async function fetchMoviesRealtime(query) {
   try {
@@ -358,14 +403,14 @@ async function salvarFilme(nome, status) {
     const data = await res.json();
 
     if (res.ok) {
-      alert(`Filme "${nome}" adicionado como "${status}"!`);
+      showToast(`Filme adicionado como "${status}".`);
       trocarAba('list');
     } else {
-      alert(`Erro: ${data.mensagem || 'Não foi possível salvar o filme.'}`);
+      showToast(data.mensagem || 'Não foi possível salvar o filme.');
     }
   } catch (error) {
     console.error('Erro ao salvar:', error);
-    alert('Erro de conexão ao tentar salvar o filme.');
+    showToast('Erro de conexão ao tentar salvar o filme.');
   }
 }
 
@@ -387,12 +432,22 @@ function renderizarLista() {
 
   grid.innerHTML = '';
 
-  const filmesFiltrados = listaFilmesCache.filter(f => 
+  const filmesFiltrados = listaFilmesCache.filter(f =>
     filtroAtual === 'todos' ? true : f.status === filtroAtual
   );
 
+  filmesFiltrados.sort((filmeA, filmeB) => {
+    if (ordenacaoAtual === 'titulo') {
+      return filmeA.titulo.localeCompare(filmeB.titulo, 'pt-BR');
+    }
+
+    const dataA = new Date(filmeA.criadoEm).getTime();
+    const dataB = new Date(filmeB.criadoEm).getTime();
+    return ordenacaoAtual === 'antigos' ? dataA - dataB : dataB - dataA;
+  });
+
   if (filmesFiltrados.length === 0) {
-    grid.innerHTML = `<p style="color: #94a3b8; grid-column: 1/-1;">Nenhum filme nesta categoria.</p>`;
+    grid.innerHTML = '<div class="empty-state"><strong>Nenhum filme nesta categoria.</strong><span>Adicione um título à sua coleção para começar.</span></div>';
     return;
   }
 
@@ -435,18 +490,32 @@ document.addEventListener('click', () => {
 });
 
 async function alterarStatus(id, novoStatus) {
-  await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: novoStatus })
-  });
-  carregarMinhaLista();
+  try {
+    await fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: novoStatus })
+    });
+    showToast(`Status atualizado para "${novoStatus}".`);
+    carregarMinhaLista();
+  } catch (error) {
+    console.error('Erro ao alterar status:', error);
+    showToast('Não foi possível atualizar o status.');
+  }
 }
 
 async function deletarFilme(id) {
-  if (!confirm('Remover filme da lista?')) return;
-  await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-  carregarMinhaLista();
+  const confirmar = window.confirm('Remover filme da lista?');
+  if (!confirmar) return;
+
+  try {
+    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    showToast('Filme removido da lista.');
+    carregarMinhaLista();
+  } catch (error) {
+    console.error('Erro ao deletar filme:', error);
+    showToast('Não foi possível remover o filme.');
+  }
 }
 
 function filtrarLista(status) {
@@ -454,6 +523,11 @@ function filtrarLista(status) {
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.classList.toggle('active', btn.innerText.includes(status) || (status === 'todos' && btn.innerText === 'Todos'));
   });
+  renderizarLista();
+}
+
+function ordenarLista(ordenacao) {
+  ordenacaoAtual = ordenacao;
   renderizarLista();
 }
 
@@ -466,6 +540,7 @@ window.toggleMenu = toggleMenu;
 window.alterarStatus = alterarStatus;
 window.deletarFilme = deletarFilme;
 window.filtrarLista = filtrarLista;
+window.ordenarLista = ordenarLista;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
