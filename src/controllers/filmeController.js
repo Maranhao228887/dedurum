@@ -1,5 +1,5 @@
 import { initDb } from '../database/db.js';
-import { buscarFilmeOmdb } from '../services/omdbService.js';
+import { buscarFilmeOmdb, buscarFilmesOmdb } from '../services/omdbService.js';
 
 // 1. Pesquisar filme na API OMDb (sem salvar no banco)
 export async function pesquisarFilmesOmdb(req, res) {
@@ -8,6 +8,16 @@ export async function pesquisarFilmesOmdb(req, res) {
 
     if (!nome) {
       return res.status(400).json({ mensagem: 'Informe o nome do filme para pesquisar.' });
+    }
+
+    if (req.query.lista === 'true') {
+      const filmes = await buscarFilmesOmdb(nome);
+
+      if (filmes.length === 0) {
+        return res.status(404).json({ mensagem: 'Filme não encontrado na base de dados.' });
+      }
+
+      return res.json(filmes);
     }
 
     const dadosOmdb = await buscarFilmeOmdb(nome);
@@ -90,7 +100,7 @@ export async function criarFilme(req, res) {
 export async function atualizarFilme(req, res) {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, notaPessoal, comentario } = req.body;
 
     const db = await initDb();
     const filmeExistente = await db.get('SELECT * FROM filmes WHERE id = ?', [id]);
@@ -100,13 +110,27 @@ export async function atualizarFilme(req, res) {
     }
 
     const novoStatus = status !== undefined ? status : filmeExistente.status;
+    const atualizacaoAvaliacao = notaPessoal !== undefined || comentario !== undefined;
+
+    if (atualizacaoAvaliacao && filmeExistente.status !== 'Já Assistido') {
+      return res.status(400).json({ mensagem: 'A avaliação só pode ser adicionada a filmes já assistidos.' });
+    }
+
+    if (notaPessoal !== undefined && (!Number.isInteger(notaPessoal) || notaPessoal < 1 || notaPessoal > 5)) {
+      return res.status(400).json({ mensagem: 'A nota deve ser um número inteiro entre 1 e 5.' });
+    }
 
     await db.run(
-      'UPDATE filmes SET status = ? WHERE id = ?',
-      [novoStatus, id]
+      `UPDATE filmes
+       SET status = ?,
+           notaPessoal = COALESCE(?, notaPessoal),
+           comentario = COALESCE(?, comentario)
+       WHERE id = ?`,
+      [novoStatus, notaPessoal ?? null, comentario ?? null, id]
     );
 
-    res.json({ ...filmeExistente, status: novoStatus });
+    const filmeAtualizado = await db.get('SELECT * FROM filmes WHERE id = ?', [id]);
+    res.json(filmeAtualizado);
   } catch (error) {
     res.status(500).json({ mensagem: 'Erro ao atualizar status do filme.' });
   }

@@ -12,7 +12,6 @@ export async function initDb() {
     driver: sqlite3.Database
   });
 
-  // Tabela sem a coluna notaPessoal
   await db.exec(`
     CREATE TABLE IF NOT EXISTS filmes (
       id TEXT PRIMARY KEY,
@@ -21,9 +20,22 @@ export async function initDb() {
       genero TEXT,
       capaUrl TEXT,
       status TEXT,
+      notaPessoal INTEGER,
+      comentario TEXT,
       criadoEm TEXT
     )
   `);
+
+  const colunas = await db.all('PRAGMA table_info(filmes)');
+  const nomesColunas = colunas.map((coluna) => coluna.name);
+
+  if (!nomesColunas.includes('notaPessoal')) {
+    await db.exec('ALTER TABLE filmes ADD COLUMN notaPessoal INTEGER');
+  }
+
+  if (!nomesColunas.includes('comentario')) {
+    await db.exec('ALTER TABLE filmes ADD COLUMN comentario TEXT');
+  }
 
   return db;
 }

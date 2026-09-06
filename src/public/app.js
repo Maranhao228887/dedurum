@@ -91,7 +91,7 @@ document.addEventListener('keydown', (event) => {
 
 async function fetchMoviesRealtime(query) {
   try {
-    const response = await fetch(`${API_URL}/buscar?nome=${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_URL}/buscar?nome=${encodeURIComponent(query)}&lista=true`);
     const data = await response.json();
 
     displayRealtimeResults(data);
@@ -100,39 +100,76 @@ async function fetchMoviesRealtime(query) {
   }
 }
 
-function displayRealtimeResults(movie) {
+function displayRealtimeResults(movies) {
   searchResults.innerHTML = '';
 
-  if (!movie || !movie.Title) {
+  if (!Array.isArray(movies) || movies.length === 0) {
     searchResults.style.display = 'none';
     return;
   }
 
-  const posterPath = movie.Poster !== 'N/A' 
-    ? movie.Poster 
-    : 'https://via.placeholder.com/45x68?text=Sem+Capa';
+  movies.slice(0, 10).forEach((movie) => {
+    const posterPath = movie.Poster !== 'N/A'
+      ? movie.Poster
+      : 'https://via.placeholder.com/45x68?text=Sem+Capa';
 
-  const year = movie.Year || 'N/A';
+    const item = document.createElement('div');
+    item.classList.add('result-item');
+    item.innerHTML = `
+      <img src="${posterPath}" alt="${movie.Title}">
+      <div class="result-info">
+        <h4>${movie.Title}</h4>
+        <span>${movie.Year || 'N/A'}</span>
+      </div>
+    `;
 
-  const item = document.createElement('div');
-  item.classList.add('result-item');
-  item.innerHTML = `
-    <img src="${posterPath}" alt="${movie.Title}">
-    <div class="result-info">
-      <h4>${movie.Title}</h4>
-      <span>${year}</span>
+    item.addEventListener('click', () => {
+      searchInput.value = movie.OriginalTitle || movie.Title;
+      searchResults.style.display = 'none';
+      buscarFilme();
+    });
+
+    searchResults.appendChild(item);
+  });
+  searchResults.style.display = 'block';
+}
+
+function displaySearchMovies(movies) {
+  const container = document.getElementById('searchResult');
+
+  if (!Array.isArray(movies) || movies.length === 0) {
+    container.innerHTML = '<p style="color: #f87171;">Nenhum filme encontrado.</p>';
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="search-movies-grid">
+      ${movies.slice(0, 10).map((movie) => {
+        const posterPath = movie.Poster !== 'N/A'
+          ? movie.Poster
+          : 'https://via.placeholder.com/180x260?text=Sem+Capa';
+        const title = movie.Title || 'Título não informado';
+        const titleForSearch = movie.OriginalTitle || title;
+
+        return `
+          <button class="search-movie-card" type="button" data-title="${titleForSearch.replace(/"/g, '&quot;')}">
+            <img src="${posterPath}" alt="Capa de ${title}">
+            <span class="search-movie-info">
+              <strong>${title}</strong>
+              <small>${movie.Year || 'N/A'}</small>
+            </span>
+          </button>
+        `;
+      }).join('')}
     </div>
   `;
 
-  // Ao clicar no filme do dropdown
-  item.addEventListener('click', () => {
-    searchInput.value = movie.Title;
-    searchResults.style.display = 'none';
-    buscarFilme(); // Carrega o filme completo
+  container.querySelectorAll('.search-movie-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      searchInput.value = card.dataset.title;
+      buscarFilme();
+    });
   });
-
-  searchResults.appendChild(item);
-  searchResults.style.display = 'block';
 }
 
 // Função para exibir múltiplos resultados (para APIs que retornam array)
@@ -350,6 +387,32 @@ function trocarAba(aba) {
 }
 
 // 2. Buscar Filme na OMDb
+async function buscarFilmes() {
+  const input = document.getElementById('searchInput');
+  const query = input.value.trim();
+  const container = document.getElementById('searchResult');
+
+  if (!query) return;
+
+  searchResults.style.display = 'none';
+  container.innerHTML = '<p style="color: #94a3b8;">Buscando filmes...</p>';
+
+  try {
+    const res = await fetch(`${API_URL}/buscar?nome=${encodeURIComponent(query)}&lista=true`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      container.innerHTML = `<p style="color: #f87171;">${data.mensagem}</p>`;
+      return;
+    }
+
+    displaySearchMovies(data);
+  } catch (error) {
+    console.error('Erro na busca:', error);
+    container.innerHTML = '<p style="color: #f87171;">Erro ao conectar com o servidor.</p>';
+  }
+}
+
 async function buscarFilme() {
   const input = document.getElementById('searchInput');
   const query = input.value.trim();
@@ -470,9 +533,29 @@ function renderizarLista() {
         <h3 class="movie-title">${filme.titulo}</h3>
         <p style="font-size: 0.75rem; color: #94a3b8;">${filme.ano || 'N/A'}</p>
         <span class="badge ${statusClass}">${filme.status}</span>
+        ${filme.status === 'Já Assistido' ? `
+          <form class="rating-form" data-id="${filme.id}">
+            <fieldset>
+              <legend>Sua avaliação</legend>
+              <div class="star-rating" role="radiogroup" aria-label="Nota de 1 a 5 estrelas">
+                ${[5, 4, 3, 2, 1].map((nota) => `
+                  <input id="star-${filme.id}-${nota}" type="radio" name="nota-${filme.id}" value="${nota}" ${Number(filme.notaPessoal) === nota ? 'checked' : ''}>
+                  <label for="star-${filme.id}-${nota}" title="${nota} estrela${nota > 1 ? 's' : ''}">★</label>
+                `).join('')}
+              </div>
+            </fieldset>
+            <textarea name="comentario" maxlength="500" placeholder="Escreva um comentário sobre o filme...">${filme.comentario || ''}</textarea>
+            <button class="btn-save-rating" type="submit">Salvar avaliação</button>
+          </form>
+        ` : ''}
       </div>
     `;
     grid.appendChild(card);
+
+    const ratingForm = card.querySelector('.rating-form');
+    if (ratingForm) {
+      ratingForm.addEventListener('submit', (event) => salvarAvaliacao(event, filme.id));
+    }
   });
 }
 
@@ -501,6 +584,39 @@ async function alterarStatus(id, novoStatus) {
   } catch (error) {
     console.error('Erro ao alterar status:', error);
     showToast('Não foi possível atualizar o status.');
+  }
+}
+
+async function salvarAvaliacao(event, id) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const nota = form.querySelector('input[name^="nota-"]:checked');
+  const comentario = form.elements.comentario.value.trim();
+
+  if (!nota) {
+    showToast('Selecione uma nota de 1 a 5 estrelas.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notaPessoal: Number(nota.value), comentario })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.mensagem || 'Não foi possível salvar a avaliação.');
+      return;
+    }
+
+    showToast('Avaliação salva com sucesso.');
+    await carregarMinhaLista();
+  } catch (error) {
+    console.error('Erro ao salvar avaliação:', error);
+    showToast('Não foi possível salvar a avaliação.');
   }
 }
 
@@ -538,6 +654,7 @@ window.checarEnter = checarEnter;
 window.salvarFilme = salvarFilme;
 window.toggleMenu = toggleMenu;
 window.alterarStatus = alterarStatus;
+window.salvarAvaliacao = salvarAvaliacao;
 window.deletarFilme = deletarFilme;
 window.filtrarLista = filtrarLista;
 window.ordenarLista = ordenarLista;
