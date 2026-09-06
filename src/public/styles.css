@@ -62,8 +62,11 @@ input {
   letter-spacing: 0.04em;
 }
 
-.logo-container svg {
-  color: var(--color-brand);
+.logo-container img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 10px;
   filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.45));
 }
 
