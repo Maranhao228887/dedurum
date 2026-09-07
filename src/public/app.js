@@ -220,7 +220,7 @@ function displayResults(movies) {
   movies.slice(0, 5).forEach(movie => {
     // Suporta tanto TMDB (poster_path) quanto OMDb (Poster)
     const posterPath = movie.poster_path 
-      ? `https://image.tmdb.org/t/p/w92${movie.poster_path}`
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
       : (movie.Poster && movie.Poster !== 'N/A' 
         ? movie.Poster 
         : 'https://via.placeholder.com/45x65?text=Sem+Capa');

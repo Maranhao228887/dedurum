@@ -87,7 +87,7 @@ async function buscarFilmesNoTmdb(titulo) {
       OriginalTitle: filme.original_title,
       Year: filme.release_date?.slice(0, 4) || 'N/A',
       Poster: filme.poster_path
-        ? `https://image.tmdb.org/t/p/w92${filme.poster_path}`
+        ? `https://image.tmdb.org/t/p/w500${filme.poster_path}`
         : 'N/A'
     }));
   } catch (error) {
