@@ -449,6 +449,10 @@ input {
   align-items: stretch;
 }
 
+.search-result-container .search-movies-grid {
+  grid-column: 1 / -1;
+}
+
 .search-result-container .movie-card {
   height: 100%;
 }
