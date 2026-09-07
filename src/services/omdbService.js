@@ -35,7 +35,7 @@ async function buscarTituloOriginalNoTmdb(titulo) {
   }
 }
 
-async function buscarDadosTmdbPtBr(titulo) {
+export async function buscarDadosTmdbPtBr(titulo) {
   const apiKey = process.env.TMDB_API_KEY;
 
   if (!apiKey) return null;

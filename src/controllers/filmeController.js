@@ -1,5 +1,5 @@
 import { initDb } from '../database/db.js';
-import { buscarFilmeOmdb, buscarFilmesOmdb } from '../services/omdbService.js';
+import { buscarFilmeOmdb, buscarFilmesOmdb, buscarDadosTmdbPtBr } from '../services/omdbService.js';
 
 // 1. Pesquisar filme na API OMDb (sem salvar no banco)
 export async function pesquisarFilmesOmdb(req, res) {
@@ -40,6 +40,46 @@ export async function listarFilmes(req, res) {
     res.json(filmes);
   } catch (error) {
     res.status(500).json({ mensagem: 'Erro ao buscar filmes no banco de dados.' });
+  }
+}
+
+// 2.5. Atualizar tradução de filmes existentes
+export async function atualizarTraducoes(req, res) {
+  try {
+    const db = await initDb();
+    // Busca TODOS os filmes
+    const filmes = await db.all('SELECT id, titulo FROM filmes');
+
+    if (filmes.length === 0) {
+      return res.json({ mensagem: 'Nenhum filme para atualizar.', atualizados: 0 });
+    }
+
+    let atualizados = 0;
+    for (const filme of filmes) {
+      try {
+        const dadosTmdb = await buscarDadosTmdbPtBr(filme.titulo);
+        
+        if (dadosTmdb) {
+          await db.run(
+            'UPDATE filmes SET tituloTraduzido = ?, tituloEn = ?, capaUrl = ? WHERE id = ?',
+            [dadosTmdb.tituloTraduzido, filme.titulo, dadosTmdb.poster, filme.id]
+          );
+          atualizados++;
+          console.log(`✓ Atualizado: ${filme.titulo} → ${dadosTmdb.tituloTraduzido}`);
+        }
+      } catch (error) {
+        console.error(`✗ Erro ao atualizar filme ${filme.id}:`, error.message);
+      }
+    }
+
+    res.json({ 
+      mensagem: `${atualizados}/${filmes.length} filme(s) atualizado(s) com sucesso.`,
+      atualizados,
+      total: filmes.length
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar traduções:', error);
+    res.status(500).json({ mensagem: 'Erro ao atualizar traduções.' });
   }
 }
 
