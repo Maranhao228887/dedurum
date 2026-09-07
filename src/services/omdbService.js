@@ -162,6 +162,15 @@ export async function buscarFilmeOmdb(titulo) {
       };
     }
 
+    const filmesTmdb = await buscarFilmesNoTmdb(titulo);
+    if (filmesTmdb.length > 0) {
+      const filmeTmdb = filmesTmdb[0];
+      return {
+        ...filmeTmdb,
+        PosterUrl: filmeTmdb.Poster
+      };
+    }
+
     const tituloOriginal = await buscarTituloOriginalNoTmdb(titulo);
 
     if (tituloOriginal && tituloOriginal.toLowerCase() !== titulo.toLowerCase()) {

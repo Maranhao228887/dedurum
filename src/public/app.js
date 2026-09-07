@@ -554,6 +554,7 @@ function renderizarLista() {
     const card = document.createElement('div');
     card.className = 'movie-card';
     const statusClass = filme.status === 'Já Assistido' ? 'badge-assistido' : 'badge-quero';
+    const avaliacaoSalva = Number(filme.notaPessoal) >= 1;
 
     card.innerHTML = `
       <div class="options-menu" id="menu-${filme.id}">
@@ -582,7 +583,7 @@ function renderizarLista() {
               </div>
             </fieldset>
             <textarea name="comentario" maxlength="500" placeholder="Escreva um comentário sobre o filme...">${filme.comentario || ''}</textarea>
-            <button class="btn-save-rating" type="submit">Salvar avaliação</button>
+            <button class="btn-save-rating${avaliacaoSalva ? ' saved' : ''}" type="submit">Salvar avaliação</button>
           </form>
         ` : ''}
       </div>

@@ -611,6 +611,12 @@ input {
   font-weight: 700;
 }
 
+.btn-save-rating.saved {
+  border-color: rgba(47, 201, 120, 0.55);
+  background: rgba(47, 201, 120, 0.14);
+  color: #70e3a2;
+}
+
 .btn-status-group {
   display: flex;
   flex-direction: column;
