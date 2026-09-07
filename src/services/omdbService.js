@@ -106,7 +106,18 @@ export async function buscarFilmesOmdb(titulo) {
     const buscaGeral = await buscarNaOmdb({ s: titulo }, baseUrl, apiKey);
 
     if (buscaGeral?.Response === 'True' && Array.isArray(buscaGeral.Search)) {
-      return buscaGeral.Search;
+      // Enriquecer resultados com traduções do TMDB
+      const filmesComTraducao = await Promise.all(
+        buscaGeral.Search.map(async (filme) => {
+          const dadosTmdb = await buscarDadosTmdbPtBr(filme.Title);
+          return {
+            ...filme,
+            TituloTraduzido: dadosTmdb?.tituloTraduzido || filme.Title,
+            Poster: dadosTmdb?.poster !== 'N/A' && dadosTmdb?.poster ? dadosTmdb.poster : (filme.Poster !== 'N/A' ? filme.Poster : 'N/A')
+          };
+        })
+      );
+      return filmesComTraducao;
     }
 
     return await buscarFilmesNoTmdb(titulo);

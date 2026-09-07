@@ -146,13 +146,15 @@ function displayRealtimeResults(movies) {
     const posterPath = movie.Poster !== 'N/A'
       ? movie.Poster
       : 'https://via.placeholder.com/45x68?text=Sem+Capa';
+    
+    const titulo = movie.TituloTraduzido || movie.Title || 'Título não informado';
 
     const item = document.createElement('div');
     item.classList.add('result-item');
     item.innerHTML = `
-      <img src="${posterPath}" alt="${movie.Title}">
+      <img src="${posterPath}" alt="${titulo}">
       <div class="result-info">
-        <h4>${movie.Title}</h4>
+        <h4>${titulo}</h4>
         <span>${movie.Year || 'N/A'}</span>
       </div>
     `;
@@ -182,8 +184,8 @@ function displaySearchMovies(movies) {
         const posterPath = movie.Poster !== 'N/A'
           ? movie.Poster
           : 'https://via.placeholder.com/180x260?text=Sem+Capa';
-        const title = movie.Title || 'Título não informado';
-        const titleForSearch = movie.OriginalTitle || title;
+        const title = movie.TituloTraduzido || movie.Title || 'Título não informado';
+        const titleForSearch = movie.OriginalTitle || movie.Title;
 
         return `
           <button class="search-movie-card" type="button" data-title="${titleForSearch.replace(/"/g, '&quot;')}">
@@ -223,7 +225,7 @@ function displayResults(movies) {
         ? movie.Poster 
         : 'https://via.placeholder.com/45x65?text=Sem+Capa');
 
-    const title = movie.title || movie.Title;
+    const title = movie.TituloTraduzido || movie.title || movie.Title;
     const year = movie.release_date 
       ? movie.release_date.split('-')[0]
       : (movie.Year || 'N/A');
