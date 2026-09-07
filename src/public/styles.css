@@ -325,8 +325,8 @@ input {
 
 .search-movies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
   width: 100%;
 }
 
@@ -337,12 +337,13 @@ input {
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: rgba(17, 21, 30, 0.82);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(22, 28, 39, 0.98), rgba(13, 18, 27, 0.96));
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-soft);
 }
 
 .search-movie-card:hover {
@@ -361,9 +362,9 @@ input {
 .search-movie-info {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  min-height: 4.5rem;
-  padding: 0.75rem;
+  gap: 0.4rem;
+  flex: 1;
+  padding: 0.9rem 0.9rem 1rem;
 }
 
 .search-movie-info strong {
@@ -372,11 +373,14 @@ input {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
-  font-size: 0.9rem;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .search-movie-info small {
   color: var(--color-muted);
+  font-size: 0.82rem;
 }
 
 .hidden {
