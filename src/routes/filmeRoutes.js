@@ -3,6 +3,7 @@ import {
   pesquisarFilmesOmdb,
   listarFilmes,
   buscarFilmePorId,
+  mostrarAvaliacaoPublica,
   criarFilme,
   atualizarFilme,
   deletarFilme
@@ -12,6 +13,7 @@ const router = Router();
 
 // /buscar DEVE vir antes de /:id
 router.get('/buscar', pesquisarFilmesOmdb);
+router.get('/avaliacao/:id', mostrarAvaliacaoPublica);
 router.get('/', listarFilmes);
 router.get('/:id', buscarFilmePorId);
 router.post('/', criarFilme);

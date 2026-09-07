@@ -60,6 +60,160 @@ export async function buscarFilmePorId(req, res) {
   }
 }
 
+export async function mostrarAvaliacaoPublica(req, res) {
+  try {
+    const { id } = req.params;
+    const db = await initDb();
+    const filme = await db.get(
+      'SELECT id, titulo, notaPessoal, comentario FROM filmes WHERE id = ?',
+      [id]
+    );
+
+    if (!filme) {
+      return res.status(404).send('<h1>Avaliação não encontrada</h1>');
+    }
+
+    const nota = Number(filme.notaPessoal ?? 0);
+    const comentario = filme.comentario ? String(filme.comentario).trim() : 'Sem comentário.';
+    const titulo = String(filme.titulo || 'Filme');
+
+    const estrelas = '★'.repeat(nota) + '☆'.repeat(5 - nota);
+    const html = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>${titulo} - Avaliação</title>
+          <style>
+            :root {
+              --bg: #0f172a;
+              --bg-2: #111827;
+              --panel: rgba(15, 23, 42, 0.9);
+              --line: rgba(148, 163, 184, 0.25);
+              --text: #f8fafc;
+              --muted: #cbd5e1;
+              --gold: #fbbf24;
+              --gold-soft: #fde68a;
+              --accent: #7c3aed;
+            }
+
+            * { box-sizing: border-box; }
+
+            body {
+              margin: 0;
+              font-family: Arial, sans-serif;
+              background: radial-gradient(circle at top, #1e293b 0%, var(--bg) 40%, var(--bg-2) 100%);
+              color: var(--text);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              padding: 24px;
+            }
+
+            .card {
+              max-width: 760px;
+              width: 100%;
+              background: var(--panel);
+              border: 1px solid var(--line);
+              border-radius: 24px;
+              padding: 32px;
+              box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            }
+
+            .badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              background: rgba(251, 191, 36, 0.14);
+              border: 1px solid rgba(251, 191, 36, 0.35);
+              color: var(--gold-soft);
+              border-radius: 999px;
+              padding: 8px 14px;
+              font-weight: 700;
+              letter-spacing: 0.04em;
+              margin-bottom: 18px;
+            }
+
+            h1 {
+              margin: 0 0 12px;
+              font-size: clamp(2rem, 4vw, 3.2rem);
+              line-height: 1.1;
+            }
+
+            .stars {
+              color: var(--gold);
+              font-size: 1.7rem;
+              letter-spacing: 0.06em;
+              margin: 6px 0 18px;
+            }
+
+            .label {
+              display: block;
+              color: var(--muted);
+              font-size: 0.8rem;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.12em;
+              margin-bottom: 10px;
+            }
+
+            .comment {
+              background: rgba(148, 163, 184, 0.08);
+              border: 1px solid rgba(148, 163, 184, 0.2);
+              border-radius: 16px;
+              padding: 18px 20px;
+              font-size: 1.05rem;
+              line-height: 1.8;
+              color: #e2e8f0;
+              white-space: pre-wrap;
+            }
+
+            .meta {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 16px;
+              margin-top: 28px;
+              padding-top: 20px;
+              border-top: 1px solid rgba(148, 163, 184, 0.2);
+              color: var(--muted);
+              font-size: 0.95rem;
+            }
+
+            .pill {
+              background: rgba(124, 58, 237, 0.18);
+              border: 1px solid rgba(168, 85, 247, 0.35);
+              border-radius: 999px;
+              padding: 6px 10px;
+              color: #ddd6fe;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="badge">🎬 Minha avaliação</div>
+            <h1>${titulo}</h1>
+            <div class="stars" aria-label="Nota ${nota} de 5">${estrelas}</div>
+            <span class="label">Comentário</span>
+            <div class="comment">${comentario}</div>
+            <div class="meta">
+              <span>Nota: ${nota}/5</span>
+              <span class="pill">Cineflix</span>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    res.type('html').send(html);
+  } catch (error) {
+    console.error('Erro ao carregar avaliação pública:', error);
+    res.status(500).send('<h1>Erro ao carregar avaliação.</h1>');
+  }
+}
+
 // 4. Cadastrar filme na Minha Lista (Quero Assistir ou Já Assistido)
 export async function criarFilme(req, res) {
   try {

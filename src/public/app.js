@@ -1,5 +1,6 @@
 const API_URL = '/api/filmes';
 const API_KEY = 'sua_chave_copiada_aqui';
+const APP_PUBLIC_URL = window.APP_PUBLIC_URL || window.location.origin;
 let listaFilmesCache = [];
 let filtroAtual = 'todos';
 let ordenacaoAtual = 'recentes';
@@ -44,6 +45,39 @@ function showToast(message) {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 250);
   }, 2200);
+}
+
+function compartilharAvaliacao(tituloFilme, nota, comentario = '', reviewUrl = '') {
+  const textoAvaliacao = comentario
+    ? `Eu avaliei ${tituloFilme} com nota ${nota}/5. Comentário: "${comentario}"`
+    : `Eu avaliei ${tituloFilme} com nota ${nota}/5.`;
+
+  if (!reviewUrl) {
+    showToast('Link da avaliação não disponível.');
+    return;
+  }
+
+  if (navigator.share) {
+    navigator.share({
+      title: `Minha avaliação de ${tituloFilme}`,
+      text: textoAvaliacao,
+      url: reviewUrl,
+    }).catch((err) => console.log('Erro ao compartilhar:', err));
+    return;
+  }
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(reviewUrl)
+      .then(() => {
+        showToast('Link da avaliação copiado para a área de transferência!');
+      })
+      .catch(() => {
+        showToast('Não foi possível copiar o link da avaliação.');
+      });
+    return;
+  }
+
+  showToast('Compartilhamento não disponível neste navegador.');
 }
 
 if (searchInput) {
@@ -524,6 +558,7 @@ function renderizarLista() {
         <button class="dots-btn" onclick="toggleMenu(event, '${filme.id}')">⋮</button>
         <div class="dropdown-content">
           <button onclick="alterarStatus('${filme.id}', 'Quero Assistir')">Quero Assistir</button>
+          <button onclick="compartilharAvaliacao('${filme.titulo.replace(/'/g, "\\'")}', ${Number(filme.notaPessoal) || 0}, '${(filme.comentario || '').replace(/'/g, "\\'").replace(/\n/g, ' ')}', '${APP_PUBLIC_URL}/api/filmes/avaliacao/${filme.id}')">Compartilhar avaliação</button>
           <button onclick="alterarStatus('${filme.id}', 'Já Assistido')">Já Assistido</button>
           <button class="danger" onclick="deletarFilme('${filme.id}')">Excluir</button>
         </div>
