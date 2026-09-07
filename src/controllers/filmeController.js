@@ -65,7 +65,7 @@ export async function mostrarAvaliacaoPublica(req, res) {
     const { id } = req.params;
     const db = await initDb();
     const filme = await db.get(
-      'SELECT id, titulo, notaPessoal, comentario FROM filmes WHERE id = ?',
+      'SELECT id, titulo, tituloTraduzido, notaPessoal, comentario, capaUrl FROM filmes WHERE id = ?',
       [id]
     );
 
@@ -75,7 +75,8 @@ export async function mostrarAvaliacaoPublica(req, res) {
 
     const nota = Number(filme.notaPessoal ?? 0);
     const comentario = filme.comentario ? String(filme.comentario).trim() : 'Sem comentário.';
-    const titulo = String(filme.titulo || 'Filme');
+    const titulo = String(filme.tituloTraduzido || filme.titulo || 'Filme');
+    const capaUrl = filme.capaUrl || 'https://via.placeholder.com/180x260?text=Sem+Capa';
 
     const estrelas = '★'.repeat(nota) + '☆'.repeat(5 - nota);
     const html = `
@@ -122,6 +123,27 @@ export async function mostrarAvaliacaoPublica(req, res) {
               box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
             }
 
+            .header-section {
+              display: flex;
+              gap: 20px;
+              align-items: flex-start;
+              margin-bottom: 20px;
+            }
+
+            .poster {
+              width: 120px;
+              min-width: 120px;
+              height: 180px;
+              border-radius: 12px;
+              object-fit: cover;
+              border: 1px solid var(--line);
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            }
+
+            .header-content {
+              flex: 1;
+            }
+
             .badge {
               display: inline-flex;
               align-items: center;
@@ -138,7 +160,7 @@ export async function mostrarAvaliacaoPublica(req, res) {
 
             h1 {
               margin: 0 0 12px;
-              font-size: clamp(2rem, 4vw, 3.2rem);
+              font-size: clamp(1.5rem, 3vw, 2.2rem);
               line-height: 1.1;
             }
 
@@ -189,13 +211,35 @@ export async function mostrarAvaliacaoPublica(req, res) {
               padding: 6px 10px;
               color: #ddd6fe;
             }
+
+            @media (max-width: 600px) {
+              .header-section {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+              }
+
+              .poster {
+                width: 100px;
+                height: 150px;
+              }
+
+              h1 {
+                font-size: 1.5rem;
+              }
+            }
           </style>
         </head>
         <body>
           <div class="card">
-            <div class="badge">🎬 Minha avaliação</div>
-            <h1>${titulo}</h1>
-            <div class="stars" aria-label="Nota ${nota} de 5">${estrelas}</div>
+            <div class="header-section">
+              <img src="${capaUrl}" alt="Pôster de ${titulo}" class="poster" />
+              <div class="header-content">
+                <div class="badge">🎬 Minha avaliação</div>
+                <h1>${titulo}</h1>
+                <div class="stars" aria-label="Nota ${nota} de 5">${estrelas}</div>
+              </div>
+            </div>
             <span class="label">Comentário</span>
             <div class="comment">${comentario}</div>
             <div class="meta">
@@ -228,19 +272,21 @@ export async function criarFilme(req, res) {
 
     const novoFilme = {
       id: String(Date.now()),
-      titulo: dadosOmdb ? dadosOmdb.Title : nome,
+      titulo: dadosOmdb ? (dadosOmdb.TituloTraduzido || dadosOmdb.Title) : nome,
+      tituloEn: dadosOmdb ? dadosOmdb.Title : nome,
+      tituloTraduzido: dadosOmdb ? (dadosOmdb.TituloTraduzido || dadosOmdb.Title) : nome,
       ano: dadosOmdb ? dadosOmdb.Year : 'N/A',
       genero: dadosOmdb ? dadosOmdb.Genre : 'N/A',
-      capaUrl: (dadosOmdb && dadosOmdb.Poster !== 'N/A') ? dadosOmdb.Poster : '',
+      capaUrl: (dadosOmdb && dadosOmdb.Poster !== 'N/A') ? dadosOmdb.Poster : (dadosOmdb?.PosterUrl || ''),
       status: status || 'Quero Assistir',
       criadoEm: new Date().toISOString()
     };
 
     const db = await initDb();
     await db.run(
-      `INSERT INTO filmes (id, titulo, ano, genero, capaUrl, status, criadoEm) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [novoFilme.id, novoFilme.titulo, novoFilme.ano, novoFilme.genero, novoFilme.capaUrl, novoFilme.status, novoFilme.criadoEm]
+      `INSERT INTO filmes (id, titulo, tituloEn, tituloTraduzido, ano, genero, capaUrl, status, criadoEm) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [novoFilme.id, novoFilme.titulo, novoFilme.tituloEn, novoFilme.tituloTraduzido, novoFilme.ano, novoFilme.genero, novoFilme.capaUrl, novoFilme.status, novoFilme.criadoEm]
     );
 
     res.status(201).json(novoFilme);

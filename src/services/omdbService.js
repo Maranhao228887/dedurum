@@ -35,6 +35,38 @@ async function buscarTituloOriginalNoTmdb(titulo) {
   }
 }
 
+async function buscarDadosTmdbPtBr(titulo) {
+  const apiKey = process.env.TMDB_API_KEY;
+
+  if (!apiKey) return null;
+
+  try {
+    const resposta = await axios.get('https://api.themoviedb.org/3/search/movie', {
+      params: {
+        api_key: apiKey,
+        query: titulo,
+        language: 'pt-BR',
+        include_adult: false
+      }
+    });
+
+    const filme = resposta.data?.results?.[0];
+    if (!filme) return null;
+
+    return {
+      tituloTraduzido: filme.title,
+      tituloOriginal: filme.original_title,
+      ano: filme.release_date?.slice(0, 4) || 'N/A',
+      poster: filme.poster_path
+        ? `https://image.tmdb.org/t/p/w500${filme.poster_path}`
+        : 'N/A'
+    };
+  } catch (error) {
+    console.error(`Erro ao consultar dados em português no TMDb: ${error.message}`);
+    return null;
+  }
+}
+
 async function buscarFilmesNoTmdb(titulo) {
   const apiKey = process.env.TMDB_API_KEY;
 
@@ -97,13 +129,26 @@ export async function buscarFilmeOmdb(titulo) {
     const buscaExata = await buscarNaOmdb({ t: titulo }, baseUrl, apiKey);
 
     if (buscaExata?.Response === 'True') {
-      return buscaExata;
+      // Busca tradução no TMDB
+      const dadosTmdb = await buscarDadosTmdbPtBr(buscaExata.Title);
+      return {
+        ...buscaExata,
+        TituloTraduzido: dadosTmdb?.tituloTraduzido || buscaExata.Title,
+        PosterUrl: (dadosTmdb?.poster !== 'N/A' && dadosTmdb?.poster) || buscaExata.Poster
+      };
     }
 
     const buscaGeral = await buscarNaOmdb({ s: titulo }, baseUrl, apiKey);
 
     if (buscaGeral?.Response === 'True' && Array.isArray(buscaGeral.Search)) {
-      return buscaGeral.Search[0];
+      const filmeOmdb = buscaGeral.Search[0];
+      // Busca tradução no TMDB
+      const dadosTmdb = await buscarDadosTmdbPtBr(filmeOmdb.Title);
+      return {
+        ...filmeOmdb,
+        TituloTraduzido: dadosTmdb?.tituloTraduzido || filmeOmdb.Title,
+        PosterUrl: (dadosTmdb?.poster !== 'N/A' && dadosTmdb?.poster) || filmeOmdb.Poster
+      };
     }
 
     const tituloOriginal = await buscarTituloOriginalNoTmdb(titulo);
@@ -112,7 +157,13 @@ export async function buscarFilmeOmdb(titulo) {
       const buscaTraduzida = await buscarNaOmdb({ t: tituloOriginal }, baseUrl, apiKey);
 
       if (buscaTraduzida?.Response === 'True') {
-        return buscaTraduzida;
+        // Busca tradução no TMDB
+        const dadosTmdb = await buscarDadosTmdbPtBr(buscaTraduzida.Title);
+        return {
+          ...buscaTraduzida,
+          TituloTraduzido: dadosTmdb?.tituloTraduzido || buscaTraduzida.Title,
+          PosterUrl: (dadosTmdb?.poster !== 'N/A' && dadosTmdb?.poster) || buscaTraduzida.Poster
+        };
       }
     }
 

@@ -558,14 +558,14 @@ function renderizarLista() {
         <button class="dots-btn" onclick="toggleMenu(event, '${filme.id}')">⋮</button>
         <div class="dropdown-content">
           <button onclick="alterarStatus('${filme.id}', 'Quero Assistir')">Quero Assistir</button>
-          <button onclick="compartilharAvaliacao('${filme.titulo.replace(/'/g, "\\'")}', ${Number(filme.notaPessoal) || 0}, '${(filme.comentario || '').replace(/'/g, "\\'").replace(/\n/g, ' ')}', '${APP_PUBLIC_URL}/api/filmes/avaliacao/${filme.id}')">Compartilhar avaliação</button>
+          <button onclick="compartilharAvaliacao('${(filme.tituloTraduzido || filme.titulo).replace(/'/g, "\\'")}', ${Number(filme.notaPessoal) || 0}, '${(filme.comentario || '').replace(/'/g, "\\'").replace(/\n/g, ' ')}', '${APP_PUBLIC_URL}/api/filmes/avaliacao/${filme.id}')">Compartilhar avaliação</button>
           <button onclick="alterarStatus('${filme.id}', 'Já Assistido')">Já Assistido</button>
           <button class="danger" onclick="deletarFilme('${filme.id}')">Excluir</button>
         </div>
       </div>
-      <img src="${filme.capaUrl || 'https://via.placeholder.com/180x260?text=Sem+Capa'}" class="movie-poster" alt="${filme.titulo}">
+      <img src="${filme.capaUrl || 'https://via.placeholder.com/180x260?text=Sem+Capa'}" class="movie-poster" alt="${filme.tituloTraduzido || filme.titulo}">
       <div class="movie-info">
-        <h3 class="movie-title">${filme.titulo}</h3>
+        <h3 class="movie-title">${filme.tituloTraduzido || filme.titulo}</h3>
         <p style="font-size: 0.75rem; color: #94a3b8;">${filme.ano || 'N/A'}</p>
         <span class="badge ${statusClass}">${filme.status}</span>
         ${filme.status === 'Já Assistido' ? `

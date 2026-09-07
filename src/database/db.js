@@ -16,6 +16,8 @@ export async function initDb() {
     CREATE TABLE IF NOT EXISTS filmes (
       id TEXT PRIMARY KEY,
       titulo TEXT NOT NULL,
+      tituloEn TEXT,
+      tituloTraduzido TEXT,
       ano TEXT,
       genero TEXT,
       capaUrl TEXT,
@@ -35,6 +37,14 @@ export async function initDb() {
 
   if (!nomesColunas.includes('comentario')) {
     await db.exec('ALTER TABLE filmes ADD COLUMN comentario TEXT');
+  }
+
+  if (!nomesColunas.includes('tituloEn')) {
+    await db.exec('ALTER TABLE filmes ADD COLUMN tituloEn TEXT');
+  }
+
+  if (!nomesColunas.includes('tituloTraduzido')) {
+    await db.exec('ALTER TABLE filmes ADD COLUMN tituloTraduzido TEXT');
   }
 
   return db;
