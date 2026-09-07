@@ -699,5 +699,14 @@ window.ordenarLista = ordenarLista;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
+  const splash = document.getElementById('splash-screen');
+
+  if (splash) {
+    setTimeout(() => {
+      splash.classList.add('splash-hidden');
+      setTimeout(() => splash.remove(), 600);
+    }, 2000);
+  }
+
   carregarMinhaLista();
 });

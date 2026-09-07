@@ -893,6 +893,60 @@ input {
   color: #edf4ff;
 }
 
+.splash-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  background: #0b0f19;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.splash-content {
+  text-align: center;
+  animation: pulseLogo 1.5s ease-in-out infinite alternate;
+}
+
+.splash-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.splash-title {
+  margin-top: 12px;
+  color: #ffffff;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+}
+
+.splash-loader {
+  width: 32px;
+  height: 32px;
+  margin: 18px auto 0;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--color-brand-2);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.splash-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@keyframes pulseLogo {
+  from { transform: scale(0.95); }
+  to { transform: scale(1.05); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 680px) {
   .navbar {
     padding: 1rem 1rem;
